@@ -130,6 +130,8 @@ namespace mvlView
 
                 //init
                 eye_index = mouth_index = 0;
+                listView_eye.Select();
+                listView_mouth.Select();
                 DrawBody(body_index);
                 DrawEye(body_index, eye_index);
                 DrawMouth(body_index, mouth_index);
@@ -196,7 +198,9 @@ namespace mvlView
             DrawBody(body_index,true);
             DrawEye(body_index, listView_eye.FocusedItem.Index);
             DrawMouth(body_index, listView_mouth.FocusedItem.Index);
-            pic.Save(path + data[body_index].body + "E" + eye_index.ToString() + "L" + mouth_index.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
+            if (!Directory.Exists(Directory.GetCurrentDirectory() + "\\chara"))
+                Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\chara");
+            pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[body_index].body + "E" + eye_index.ToString() + "L" + mouth_index.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
             MessageBox.Show("Save success!");
         }
 
