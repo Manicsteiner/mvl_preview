@@ -17,7 +17,10 @@ namespace mvlView
     {
         public string body;
         public List<string> eyes;
-        public List<string> mouths ;
+        public List<string> mouths;
+        //在结构体定义里增加了用于判断该立绘是否有眼、嘴分支的变量
+        public bool haseyes;
+        public bool hasmouths;
     }
     public partial class Form1 : Form
     {
@@ -52,26 +55,41 @@ namespace mvlView
             StreamReader sr = new StreamReader(filename);
             json = (JObject)JsonConvert.DeserializeObject(sr.ReadToEnd());
             sr.Close();
-            
+
+            //新增两个变量，用于定义body.png名称长度
+            bool lengthdef = false;
+            int baselength = 0;
             foreach(var item in json)
             {
-                if (item.Key.Length==9)
+                if (!lengthdef)
+                {
+                    baselength = item.Key.Length;
+                    lengthdef = true;
+                }
+                if (item.Key.Length == baselength)
                 {
                     Chara temp;
                     temp.body = item.Key;
                     temp.eyes = new List<string>();
                     temp.mouths = new List<string>();
+                    //初始化，假定立绘没有子分支
+                    temp.haseyes = false;
+                    temp.hasmouths = false;
                     foreach (var block in json)
                     {
-                        if (block.Key.Length == 11 && block.Key.Substring(0,9)== item.Key)
+                        if (block.Key.Length - 2 == baselength && block.Key.Substring(0,baselength)== item.Key)
                         {
-                            if (block.Key.Substring(9, 1) == "E")
+                            if (block.Key.Substring(baselength, 1) == "E")
                             {
                                 temp.eyes.Add(block.Key);
+                                temp.haseyes = true;
+                                //判定为有眼部子分支
                             }
-                            if (block.Key.Substring(9, 1) == "L")
+                            if (block.Key.Substring(baselength, 1) == "L")
                             {
                                 temp.mouths.Add(block.Key);
+                                temp.hasmouths = true;
+                                //同上
                             }
 
                         }
@@ -97,34 +115,41 @@ namespace mvlView
             {
                 //eyes
                 listView_eye.Clear();
-                ImageList image_list = new ImageList();  
-                for(int i=0;i< data[body_index].eyes.Count; i++)
+                ImageList image_list = new ImageList();
+                //添加了判断，如立绘没有eyes子类，则跳过这一部分，避免报错
+                if (data[body_index].haseyes)
                 {
-                    image_list.Images.Add(Bitmap.FromFile(path + data[body_index].eyes[i] + ".png"));
-                    image_list.ImageSize = new Size(75, 75);
-                }
-                listView_eye.LargeImageList = image_list;
-                for (int i = 0; i < data[body_index].eyes.Count; i++)
-                {
-                    ListViewItem item = new ListViewItem();
-                    item.ImageIndex = i;
-                    listView_eye.Items.Add(item);
+                    for (int i = 0; i < data[body_index].eyes.Count; i++)
+                    {
+                        image_list.Images.Add(Bitmap.FromFile(path + data[body_index].eyes[i] + ".png"));
+                        image_list.ImageSize = new Size(75, 75);
+                    }
+                    listView_eye.LargeImageList = image_list;
+                    for (int i = 0; i < data[body_index].eyes.Count; i++)
+                    {
+                        ListViewItem item = new ListViewItem();
+                        item.ImageIndex = i;
+                        listView_eye.Items.Add(item);
+                    }
                 }
 
                 //mouths
                 listView_mouth.Clear();
                 image_list = new ImageList();
-                for (int i = 0; i < data[body_index].mouths.Count; i++)
-                {
-                    image_list.Images.Add(Bitmap.FromFile(path + data[body_index].mouths[i] + ".png"));
-                    image_list.ImageSize = new Size(75, 75);
-                }
-                listView_mouth.LargeImageList = image_list;
-                for (int i = 0; i < data[body_index].mouths.Count; i++)
-                {
-                    ListViewItem item = new ListViewItem();
-                    item.ImageIndex = i;
-                    listView_mouth.Items.Add(item);
+                //添加了判断，同上
+                if (data[body_index].hasmouths) {
+                    for (int i = 0; i < data[body_index].mouths.Count; i++)
+                    {
+                        image_list.Images.Add(Bitmap.FromFile(path + data[body_index].mouths[i] + ".png"));
+                        image_list.ImageSize = new Size(75, 75);
+                    }
+                    listView_mouth.LargeImageList = image_list;
+                    for (int i = 0; i < data[body_index].mouths.Count; i++)
+                    {
+                        ListViewItem item = new ListViewItem();
+                        item.ImageIndex = i;
+                        listView_mouth.Items.Add(item);
+                    }
                 }
 
 
@@ -133,8 +158,8 @@ namespace mvlView
                 listView_eye.Select();
                 listView_mouth.Select();
                 DrawBody(body_index);
-                DrawEye(body_index, eye_index);
-                DrawMouth(body_index, mouth_index);
+                if (data[body_index].haseyes) DrawEye(body_index, eye_index);
+                if (data[body_index].hasmouths) DrawMouth(body_index, mouth_index);
                 view.Image = pic;
                
 
@@ -196,8 +221,8 @@ namespace mvlView
         {
             if (body_index < 0 || body_index > data.Count) return;
             DrawBody(body_index,true);
-            DrawEye(body_index, listView_eye.FocusedItem.Index);
-            DrawMouth(body_index, listView_mouth.FocusedItem.Index);
+            if (data[body_index].haseyes) DrawEye(body_index, listView_eye.FocusedItem.Index);
+            if (data[body_index].hasmouths) DrawMouth(body_index, listView_mouth.FocusedItem.Index);
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "\\chara"))
                 Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\chara");
             pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[body_index].body + "E" + eye_index.ToString() + "L" + mouth_index.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
