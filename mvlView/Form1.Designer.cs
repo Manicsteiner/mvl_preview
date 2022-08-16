@@ -44,6 +44,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             this.FileMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.view)).BeginInit();
             this.SuspendLayout();
@@ -72,7 +73,7 @@
             // openJsonToolStripMenuItem
             // 
             this.openJsonToolStripMenuItem.Name = "openJsonToolStripMenuItem";
-            this.openJsonToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.openJsonToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
             this.openJsonToolStripMenuItem.Text = "Open Json";
             this.openJsonToolStripMenuItem.Click += new System.EventHandler(this.openJsonToolStripMenuItem_Click);
             this.openJsonToolStripMenuItem.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
@@ -80,12 +81,14 @@
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
             this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             this.exitToolStripMenuItem.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
             // 
             // listView_eye
             // 
+            this.listView_eye.HideSelection = false;
             this.listView_eye.Location = new System.Drawing.Point(12, 286);
             this.listView_eye.Name = "listView_eye";
             this.listView_eye.Size = new System.Drawing.Size(128, 349);
@@ -95,6 +98,7 @@
             // 
             // listView_mouth
             // 
+            this.listView_mouth.HideSelection = false;
             this.listView_mouth.Location = new System.Drawing.Point(146, 286);
             this.listView_mouth.Name = "listView_mouth";
             this.listView_mouth.Size = new System.Drawing.Size(131, 349);
@@ -108,7 +112,7 @@
             this.label1.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label1.Location = new System.Drawing.Point(9, 2);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(48, 16);
+            this.label1.Size = new System.Drawing.Size(47, 16);
             this.label1.TabIndex = 5;
             this.label1.Text = "bodys";
             // 
@@ -118,7 +122,7 @@
             this.label2.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label2.Location = new System.Drawing.Point(9, 266);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(40, 16);
+            this.label2.Size = new System.Drawing.Size(39, 16);
             this.label2.TabIndex = 6;
             this.label2.Text = "eyes";
             // 
@@ -128,7 +132,7 @@
             this.label3.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label3.Location = new System.Drawing.Point(143, 266);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(56, 16);
+            this.label3.Size = new System.Drawing.Size(55, 16);
             this.label3.TabIndex = 7;
             this.label3.Text = "mouths";
             // 
@@ -147,7 +151,7 @@
             this.label4.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label4.Location = new System.Drawing.Point(280, 2);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(64, 16);
+            this.label4.Size = new System.Drawing.Size(63, 16);
             this.label4.TabIndex = 9;
             this.label4.Text = "preview";
             // 
@@ -156,7 +160,7 @@
             this.button1.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.button1.Location = new System.Drawing.Point(172, 21);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 30);
+            this.button1.Size = new System.Drawing.Size(80, 30);
             this.button1.TabIndex = 10;
             this.button1.Text = "Save";
             this.button1.UseVisualStyleBackColor = true;
@@ -174,7 +178,7 @@
             // label6
             // 
             this.label6.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label6.Location = new System.Drawing.Point(156, 69);
+            this.label6.Location = new System.Drawing.Point(152, 109);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(108, 53);
             this.label6.TabIndex = 12;
@@ -190,12 +194,24 @@
             this.label7.Text = "By Wetor\r\n(依旧W如此)\r\n2019.4.15\r\nThanks\r\nningshanwutuobang";
             this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // button2
+            // 
+            this.button2.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button2.Location = new System.Drawing.Point(172, 57);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(80, 30);
+            this.button2.TabIndex = 14;
+            this.button2.Text = "Save All";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(828, 647);
             this.ContextMenuStrip = this.FileMenu;
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -233,6 +249,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button button2;
     }
 }
 

@@ -30,10 +30,30 @@ namespace mvlView
         Bitmap pic;
         int body_index,eye_index,mouth_index;
         int body_x0, body_y0;
+        string[] inargs;
 
         public Form1()
         {
             InitializeComponent();
+        }
+
+        public Form1(string[] args)
+        {
+            this.inargs = args;
+            InitializeComponent();
+
+            for(int i = 0; i < inargs.Length; i++)
+            {
+                if (File.Exists(inargs[i]))
+                {
+                    data.Clear();
+                    listBox1.Items.Clear();
+                    path = Path.GetDirectoryName(inargs[i]) + "\\";
+                    OpenJSON(inargs[i]);
+                    saveAll();
+                }
+            }
+            this.Close();
         }
 
         private void openJsonToolStripMenuItem_Click(object sender, EventArgs e)
@@ -47,6 +67,7 @@ namespace mvlView
                 listBox1.Items.Clear();
                 path = Path.GetDirectoryName(file.FileName) + "\\";
                 OpenJSON(file.FileName);
+
             }
         }
 
@@ -201,6 +222,68 @@ namespace mvlView
             bmp.Dispose();
             g.Dispose();
         }
+
+        public void saveAll()
+        {
+            if (body_index < 0 || body_index > data.Count) return;
+            for (int i_body = 0; i_body < data.Count; i_body++)
+            {
+                DrawBody(i_body, true);
+                if (!Directory.Exists(Directory.GetCurrentDirectory() + "\\chara"))
+                    Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\chara");
+                if (data[i_body].haseyes)
+                {
+                    if (data[i_body].hasmouths)
+                    {
+                        for (int i_mouths = 0; i_mouths < data[i_body].mouths.Count; i_mouths++)
+                        {
+                            for (int i_eyes = 0; i_eyes < data[i_body].mouths.Count; i_eyes++)
+                            {
+                                DrawEye(i_body, i_eyes);
+                                DrawMouth(i_body, i_mouths);
+                                pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[i_body].body + "E" + i_eyes.ToString() + "L" + i_mouths.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i_eyes = 0; i_eyes < data[i_body].mouths.Count; i_eyes++)
+                        {
+                            DrawEye(i_body, i_eyes);
+                            pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[i_body].body + "E" + i_eyes.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                    }
+                    //DrawEye(i_body, listView_eye.FocusedItem.Index); 
+                }
+                else
+                {
+                    if (data[i_body].hasmouths)
+                    {
+                        for (int i_mouths = 0; i_mouths < data[i_body].mouths.Count; i_mouths++)
+                        {
+                            DrawMouth(i_body, i_mouths);
+                            pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[i_body].body + "L" + i_mouths.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                        }
+                    }
+                    else
+                    {
+                        pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[i_body].body + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                    }
+                }
+            }
+            MessageBox.Show("Saved all!");
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            saveAll();
+        }
+
         private void listView_mouth_DoubleClick(object sender, EventArgs e)
         {
             if (listView_mouth.SelectedItems.Count <= 0)
@@ -221,14 +304,19 @@ namespace mvlView
         {
             if (body_index < 0 || body_index > data.Count) return;
             DrawBody(body_index,true);
-            if (data[body_index].haseyes) DrawEye(body_index, listView_eye.FocusedItem.Index);
-            if (data[body_index].hasmouths) DrawMouth(body_index, listView_mouth.FocusedItem.Index);
+            string tempFileName = data[body_index].body;
+            if (data[body_index].haseyes) { 
+                DrawEye(body_index, listView_eye.FocusedItem.Index);
+                tempFileName += "E" + eye_index.ToString();
+            }
+            if (data[body_index].hasmouths) { 
+                DrawMouth(body_index, listView_mouth.FocusedItem.Index);
+                tempFileName += "L" + mouth_index.ToString();
+            }
             if (!Directory.Exists(Directory.GetCurrentDirectory() + "\\chara"))
                 Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\chara");
-            pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[body_index].body + "E" + eye_index.ToString() + "L" + mouth_index.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
+            pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + tempFileName + ".png", System.Drawing.Imaging.ImageFormat.Png);
             MessageBox.Show("Save success!");
-        }
-
-       
+        }              
     }
 }
