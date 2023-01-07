@@ -24,19 +24,24 @@ namespace mvlView
     }
     public partial class Form1 : Form
     {
-        JObject json;
-        List<Chara> data=new List<Chara>();
-        string path;
+        //JObject json;
+        List<MvlSpirit> mvljson = new List<MvlSpirit>();
+        List<Chara> data = new List<Chara>();
+        string sourcepath;
+        string targetpath;
+        List<string> temppath = new List<string>();
         Bitmap pic;
         int body_index,eye_index,mouth_index;
         int body_x0, body_y0;
         string[] inargs;
 
+        //默认启动
         public Form1()
         {
             InitializeComponent();
         }
 
+        //命令行启动
         public Form1(string[] args)
         {
             this.inargs = args;
@@ -48,14 +53,31 @@ namespace mvlView
                 {
                     data.Clear();
                     listBox1.Items.Clear();
-                    path = Path.GetDirectoryName(inargs[i]) + "\\";
-                    OpenJSON(inargs[i]);
-                    saveAll();
+                    if (Path.GetExtension(inargs[i]).Equals(".json")) {
+                        sourcepath = Path.GetDirectoryName(inargs[i]) + "\\";
+                        OpenJSON(inargs[i]);
+                        saveAll(false);
+                    }
+                    if (Path.GetExtension(inargs[i]).Equals(".mvl"))
+                    {
+                        Mvl thisMvl = new Mvl(inargs[i]);
+                        sourcepath = thisMvl.targetTempPath;
+                        temppath.Add(thisMvl.targetTempPath);
+                        mvljson = thisMvl.listofmvl;
+                        OpenMVL(mvljson);
+                        saveAll(false);
+                    }
                 }
+            }
+            foreach (var item in temppath)
+            {
+                DirectoryInfo di = new DirectoryInfo(item);
+                di.Delete(true);
             }
             this.Close();
         }
 
+        //程序菜单：打开JSON
         private void openJsonToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();
@@ -65,20 +87,41 @@ namespace mvlView
             {
                 data.Clear();
                 listBox1.Items.Clear();
-                path = Path.GetDirectoryName(file.FileName) + "\\";
+                sourcepath = Path.GetDirectoryName(file.FileName) + "\\";
                 OpenJSON(file.FileName);
 
             }
         }
 
+        //从这里开始处理JSON文件
         public void OpenJSON(string filename)
         {
             StreamReader sr = new StreamReader(filename);
-            json = (JObject)JsonConvert.DeserializeObject(sr.ReadToEnd());
+            JObject json = (JObject)JsonConvert.DeserializeObject(sr.ReadToEnd());
             sr.Close();
 
+            int num = 0;
+            List<string> names = new List<string>();
+            foreach(var item in json)
+            {
+                num++;
+                names.Add(item.Key);
+            }
+            for(int i = 0; i< num; i++)
+            {
+                MvlSpirit temp;
+                temp.name = names[i];
+                temp.max_x = (int)json[names[i]]["max_x"];
+                temp.min_x = (int)json[names[i]]["min_x"];
+                temp.max_y = (int)json[names[i]]["max_y"];
+                temp.min_y = (int)json[names[i]]["min_y"];
+                mvljson.Add(temp);
+            }
+            OpenMVL(mvljson);
+
+
             //新增两个变量，用于定义body.png名称长度
-            bool lengthdef = false;
+            /*bool lengthdef = false;
             int baselength = 0;
             foreach(var item in json)
             {
@@ -121,10 +164,62 @@ namespace mvlView
             for(int i = 0; i < data.Count; i++)
             {
                 listBox1.Items.Add(data[i].body);
+            }*/
+
+        }
+
+        //open from mvl
+        public void OpenMVL(List<MvlSpirit> mvllist)
+        {
+            //新增两个变量，用于定义body.png名称长度
+            bool lengthdef = false;
+            int baselength = 0;
+            foreach (var item in mvllist)
+            {
+                if (!lengthdef)
+                {
+                    baselength = item.name.Length;
+                    lengthdef = true;
+                }
+                if (item.name.Length == baselength)
+                {
+                    Chara temp;
+                    temp.body = item.name;
+                    temp.eyes = new List<string>();
+                    temp.mouths = new List<string>();
+                    //初始化，假定立绘没有子分支
+                    temp.haseyes = false;
+                    temp.hasmouths = false;
+                    foreach (var block in mvllist)
+                    {
+                        if (block.name.Length - 2 == baselength && block.name.Substring(0, baselength) == item.name)
+                        {
+                            if (block.name.Substring(baselength, 1) == "E")
+                            {
+                                temp.eyes.Add(block.name);
+                                temp.haseyes = true;
+                                //判定为有眼部子分支
+                            }
+                            if (block.name.Substring(baselength, 1) == "L")
+                            {
+                                temp.mouths.Add(block.name);
+                                temp.hasmouths = true;
+                                //同上
+                            }
+
+                        }
+                    }
+                    data.Add(temp);
+                }
+            }
+            for (int i = 0; i < data.Count; i++)
+            {
+                listBox1.Items.Add(data[i].body);
             }
 
         }
 
+        //load spirit from list
         private void listBox1_DoubleClick(object sender, EventArgs e)
         {
             if (listBox1.SelectedItems.Count <= 0)
@@ -142,7 +237,7 @@ namespace mvlView
                 {
                     for (int i = 0; i < data[body_index].eyes.Count; i++)
                     {
-                        image_list.Images.Add(Bitmap.FromFile(path + data[body_index].eyes[i] + ".png"));
+                        image_list.Images.Add(Bitmap.FromFile(sourcepath + data[body_index].eyes[i] + ".png"));
                         image_list.ImageSize = new Size(75, 75);
                     }
                     listView_eye.LargeImageList = image_list;
@@ -161,7 +256,7 @@ namespace mvlView
                 if (data[body_index].hasmouths) {
                     for (int i = 0; i < data[body_index].mouths.Count; i++)
                     {
-                        image_list.Images.Add(Bitmap.FromFile(path + data[body_index].mouths[i] + ".png"));
+                        image_list.Images.Add(Bitmap.FromFile(sourcepath + data[body_index].mouths[i] + ".png"));
                         image_list.ImageSize = new Size(75, 75);
                     }
                     listView_mouth.LargeImageList = image_list;
@@ -190,10 +285,14 @@ namespace mvlView
         }
         public void DrawBody(int body_index, bool save = false)
         {
-            Bitmap bmp = new Bitmap(path + data[body_index].body + ".png");
+            Bitmap bmp = new Bitmap(sourcepath + data[body_index].body + ".png");
             label5.Text = bmp.Width.ToString() + "x" + bmp.Height.ToString();
-            body_x0 = (int)json[data[body_index].body]["min_x"];
-            body_y0 = (int)json[data[body_index].body]["min_y"];
+            MvlSpirit tempsp = mvljson.Find(e => e.name.Equals(data[body_index].body));
+            //body_x0 = (int)json[data[body_index].body]["min_x"];
+            body_x0 = tempsp.min_x;
+            //body_y0 = (int)json[data[body_index].body]["min_y"];
+            body_y0 = tempsp.min_y;
+            //MessageBox.Show(tempsp.name + "\rbodyx0" + body_x0.ToString());
             pic = new Bitmap(bmp.Width, bmp.Height);
             Graphics g = Graphics.FromImage(pic);
             if(!save)
@@ -204,26 +303,34 @@ namespace mvlView
         }
         public void DrawEye(int body_index,int eye_index)
         {
-            Bitmap bmp = new Bitmap(path + data[body_index].eyes[eye_index] + ".png");
+            Bitmap bmp = new Bitmap(sourcepath + data[body_index].eyes[eye_index] + ".png");
             Graphics g = Graphics.FromImage(pic);
-            int x = (int)json[data[body_index].eyes[eye_index]]["min_x"] - body_x0;
-            int y = (int)json[data[body_index].eyes[eye_index]]["min_y"] - body_y0;
+            MvlSpirit tempsp = mvljson.Find(e => e.name.Equals(data[body_index].eyes[eye_index]));
+            //int x = (int)json[data[body_index].eyes[eye_index]]["min_x"] - body_x0;
+            //int y = (int)json[data[body_index].eyes[eye_index]]["min_y"] - body_y0;
+            int x = tempsp.min_x - body_x0;
+            int y = tempsp.min_y - body_y0;
             g.DrawImage(bmp, x, y);
             bmp.Dispose();
             g.Dispose();
         }
         public void DrawMouth(int body_index, int mouth_index)
         {
-            Bitmap bmp = new Bitmap(path + data[body_index].mouths[mouth_index] + ".png");
+            Bitmap bmp = new Bitmap(sourcepath + data[body_index].mouths[mouth_index] + ".png");
             Graphics g = Graphics.FromImage(pic);
-            int x = (int)json[data[body_index].mouths[mouth_index]]["min_x"] - body_x0;
-            int y = (int)json[data[body_index].mouths[mouth_index]]["min_y"] - body_y0;
+            MvlSpirit tempsp = mvljson.Find(e => e.name.Equals(data[body_index].mouths[mouth_index]));
+            //int x = (int)json[data[body_index].mouths[mouth_index]]["min_x"] - body_x0;
+            //int y = (int)json[data[body_index].mouths[mouth_index]]["min_y"] - body_y0;
+            //MessageBox.Show(tempsp.name + "\rmouthminx "+tempsp.min_x.ToString()+"\rbodyx0? " + body_x0.ToString());
+            int x = tempsp.min_x - body_x0;
+            int y = tempsp.min_y - body_y0;
             g.DrawImage(bmp, x, y);
             bmp.Dispose();
             g.Dispose();
         }
 
-        public void saveAll()
+        //Save all
+        public void saveAll(bool CompletAnnouce)
         {
             if (body_index < 0 || body_index > data.Count) return;
             for (int i_body = 0; i_body < data.Count; i_body++)
@@ -271,17 +378,46 @@ namespace mvlView
                     }
                 }
             }
-            MessageBox.Show("Saved all!");
+            if(CompletAnnouce) MessageBox.Show("Saved all!");
         }
 
+        //Exit
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            foreach(var item in temppath)
+            {
+                //File.Delete(item.Substring(0,item.Length-2));
+                DirectoryInfo di = new DirectoryInfo(item);
+                di.Delete(true);
+            }
             this.Close();
         }
 
+        //Open mvl file Enter
+        private void openMvlToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog file = new OpenFileDialog();
+            file.Filter = "mvl File|*.mvl|All File|*.*";
+            file.ShowDialog();
+            if (File.Exists(file.FileName))
+            {
+                data.Clear();
+                listBox1.Items.Clear();
+                //sourcepath = Path.GetDirectoryName(file.FileName) + "\\";
+                Mvl thisMvl = new Mvl(file.FileName);
+                sourcepath = thisMvl.targetTempPath;
+                //OpenJSON(file.FileName);
+                temppath.Add(thisMvl.targetTempPath);
+                mvljson = thisMvl.listofmvl;
+                OpenMVL(mvljson);
+
+            }
+        }
+
+        //save all button click
         private void button2_Click(object sender, EventArgs e)
         {
-            saveAll();
+            saveAll(true);
         }
 
         private void listView_mouth_DoubleClick(object sender, EventArgs e)
@@ -300,6 +436,7 @@ namespace mvlView
             DrawEye(body_index, mouth_index);
             view.Image = pic;
         }
+        //save one
         private void button1_Click(object sender, EventArgs e)
         {
             if (body_index < 0 || body_index > data.Count) return;
