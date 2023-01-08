@@ -31,7 +31,9 @@
             this.components = new System.ComponentModel.Container();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.FileMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.openMvlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openJsonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listView_eye = new System.Windows.Forms.ListView();
             this.listView_mouth = new System.Windows.Forms.ListView();
@@ -45,7 +47,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
-            this.openMvlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.FileMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.view)).BeginInit();
             this.SuspendLayout();
@@ -67,10 +69,17 @@
             this.FileMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openMvlToolStripMenuItem,
             this.openJsonToolStripMenuItem,
+            this.aboutToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.FileMenu.Name = "FileMenu";
-            this.FileMenu.Size = new System.Drawing.Size(139, 70);
-            this.FileMenu.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
+            this.FileMenu.Size = new System.Drawing.Size(181, 114);
+            // 
+            // openMvlToolStripMenuItem
+            // 
+            this.openMvlToolStripMenuItem.Name = "openMvlToolStripMenuItem";
+            this.openMvlToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openMvlToolStripMenuItem.Text = "Open mvl";
+            this.openMvlToolStripMenuItem.Click += new System.EventHandler(this.openMvlToolStripMenuItem_Click);
             // 
             // openJsonToolStripMenuItem
             // 
@@ -78,7 +87,13 @@
             this.openJsonToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openJsonToolStripMenuItem.Text = "Open Json";
             this.openJsonToolStripMenuItem.Click += new System.EventHandler(this.openJsonToolStripMenuItem_Click);
-            this.openJsonToolStripMenuItem.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
@@ -86,7 +101,6 @@
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
-            this.exitToolStripMenuItem.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
             // 
             // listView_eye
             // 
@@ -180,7 +194,7 @@
             // label6
             // 
             this.label6.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label6.Location = new System.Drawing.Point(152, 109);
+            this.label6.Location = new System.Drawing.Point(153, 120);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(108, 53);
             this.label6.TabIndex = 12;
@@ -207,13 +221,15 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // openMvlToolStripMenuItem
+            // checkBox1
             // 
-            this.openMvlToolStripMenuItem.Name = "openMvlToolStripMenuItem";
-            this.openMvlToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
-            this.openMvlToolStripMenuItem.Text = "Open mvl";
-            this.openMvlToolStripMenuItem.Click += new System.EventHandler(this.openMvlToolStripMenuItem_Click);
-            this.openMvlToolStripMenuItem.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(141, 90);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(138, 16);
+            this.checkBox1.TabIndex = 15;
+            this.checkBox1.Text = "save to source path";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -221,6 +237,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(828, 647);
             this.ContextMenuStrip = this.FileMenu;
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
@@ -261,6 +278,8 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ToolStripMenuItem openMvlToolStripMenuItem;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
     }
 }
 

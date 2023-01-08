@@ -52,6 +52,7 @@ namespace mvlView
                 if (File.Exists(inargs[i]))
                 {
                     data.Clear();
+                    mvljson.Clear();
                     listBox1.Items.Clear();
                     if (Path.GetExtension(inargs[i]).Equals(".json")) {
                         sourcepath = Path.GetDirectoryName(inargs[i]) + "\\";
@@ -86,8 +87,10 @@ namespace mvlView
             if (File.Exists(file.FileName))
             {
                 data.Clear();
+                mvljson.Clear();
                 listBox1.Items.Clear();
                 sourcepath = Path.GetDirectoryName(file.FileName) + "\\";
+                targetpath = Path.GetDirectoryName(file.FileName) + "\\";
                 OpenJSON(file.FileName);
 
             }
@@ -237,8 +240,10 @@ namespace mvlView
                 {
                     for (int i = 0; i < data[body_index].eyes.Count; i++)
                     {
+                        //Image temppiceyes = Bitmap.FromFile(sourcepath + data[body_index].eyes[i] + ".png");
                         image_list.Images.Add(Bitmap.FromFile(sourcepath + data[body_index].eyes[i] + ".png"));
                         image_list.ImageSize = new Size(75, 75);
+                        //temppiceyes.Dispose();
                     }
                     listView_eye.LargeImageList = image_list;
                     for (int i = 0; i < data[body_index].eyes.Count; i++)
@@ -256,8 +261,10 @@ namespace mvlView
                 if (data[body_index].hasmouths) {
                     for (int i = 0; i < data[body_index].mouths.Count; i++)
                     {
+                        //Image temppicmouth = Bitmap.FromFile(sourcepath + data[body_index].mouths[i] + ".png"); ;
                         image_list.Images.Add(Bitmap.FromFile(sourcepath + data[body_index].mouths[i] + ".png"));
                         image_list.ImageSize = new Size(75, 75);
+                        //temppicmouth.Dispose();
                     }
                     listView_mouth.LargeImageList = image_list;
                     for (int i = 0; i < data[body_index].mouths.Count; i++)
@@ -265,6 +272,10 @@ namespace mvlView
                         ListViewItem item = new ListViewItem();
                         item.ImageIndex = i;
                         listView_mouth.Items.Add(item);
+                    }
+                    foreach(Image item in image_list.Images)
+                    {
+                        item.Dispose();
                     }
                 }
 
@@ -292,7 +303,6 @@ namespace mvlView
             body_x0 = tempsp.min_x;
             //body_y0 = (int)json[data[body_index].body]["min_y"];
             body_y0 = tempsp.min_y;
-            //MessageBox.Show(tempsp.name + "\rbodyx0" + body_x0.ToString());
             pic = new Bitmap(bmp.Width, bmp.Height);
             Graphics g = Graphics.FromImage(pic);
             if(!save)
@@ -321,7 +331,6 @@ namespace mvlView
             MvlSpirit tempsp = mvljson.Find(e => e.name.Equals(data[body_index].mouths[mouth_index]));
             //int x = (int)json[data[body_index].mouths[mouth_index]]["min_x"] - body_x0;
             //int y = (int)json[data[body_index].mouths[mouth_index]]["min_y"] - body_y0;
-            //MessageBox.Show(tempsp.name + "\rmouthminx "+tempsp.min_x.ToString()+"\rbodyx0? " + body_x0.ToString());
             int x = tempsp.min_x - body_x0;
             int y = tempsp.min_y - body_y0;
             g.DrawImage(bmp, x, y);
@@ -336,8 +345,19 @@ namespace mvlView
             for (int i_body = 0; i_body < data.Count; i_body++)
             {
                 DrawBody(i_body, true);
-                if (!Directory.Exists(Directory.GetCurrentDirectory() + "\\chara"))
-                    Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\chara");
+                string outputpath;
+                if (checkBox1.Checked)
+                {
+                    if (!Directory.Exists(targetpath + "\\chara"))
+                        Directory.CreateDirectory(targetpath + "\\chara");
+                    outputpath = targetpath + "\\chara\\";
+                }
+                else
+                {
+                    if (!Directory.Exists(Directory.GetCurrentDirectory() + "\\chara"))
+                        Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\chara");
+                    outputpath = Directory.GetCurrentDirectory() + "\\chara\\";
+                }
                 if (data[i_body].haseyes)
                 {
                     if (data[i_body].hasmouths)
@@ -348,7 +368,7 @@ namespace mvlView
                             {
                                 DrawEye(i_body, i_eyes);
                                 DrawMouth(i_body, i_mouths);
-                                pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[i_body].body + "E" + i_eyes.ToString() + "L" + i_mouths.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                                pic.Save(outputpath + data[i_body].body + "E" + i_eyes.ToString() + "L" + i_mouths.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
                             }
                         }
                     }
@@ -357,7 +377,7 @@ namespace mvlView
                         for (int i_eyes = 0; i_eyes < data[i_body].mouths.Count; i_eyes++)
                         {
                             DrawEye(i_body, i_eyes);
-                            pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[i_body].body + "E" + i_eyes.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                            pic.Save(outputpath + data[i_body].body + "E" + i_eyes.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
                         }
                     }
                     //DrawEye(i_body, listView_eye.FocusedItem.Index); 
@@ -369,26 +389,46 @@ namespace mvlView
                         for (int i_mouths = 0; i_mouths < data[i_body].mouths.Count; i_mouths++)
                         {
                             DrawMouth(i_body, i_mouths);
-                            pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[i_body].body + "L" + i_mouths.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                            pic.Save(outputpath + data[i_body].body + "L" + i_mouths.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
                         }
                     }
                     else
                     {
-                        pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + data[i_body].body + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                        pic.Save(outputpath + data[i_body].body + ".png", System.Drawing.Imaging.ImageFormat.Png);
                     }
                 }
             }
-            if(CompletAnnouce) MessageBox.Show("Saved all!");
+            if (CompletAnnouce) MessageBox.Show("Saved all!");
         }
 
         //Exit
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach(var item in temppath)
+            //listView_eye.LargeImageList.Images.Clear();
+            //listView_mouth.LargeImageList.Images.Clear();
+            /*foreach (Image item in listView_mouth.LargeImageList.Images)
             {
-                //File.Delete(item.Substring(0,item.Length-2));
-                DirectoryInfo di = new DirectoryInfo(item);
-                di.Delete(true);
+                item.Dispose();
+                //MessageBox.Show("itworks");
+            }
+            foreach (ListViewItem item in listView_mouth.Items)
+            {
+                item.Remove();
+                //MessageBox.Show("itworks");
+            }
+            listView_mouth.Dispose();*/
+            //pic.Dispose();
+            
+            foreach (var item in temppath)
+            {
+                try
+                {
+                    DirectoryInfo di = new DirectoryInfo(item);
+                    di.Delete(true);
+                }
+                catch(IOException ex) {
+                    //throw ex;
+                }
             }
             this.Close();
         }
@@ -402,15 +442,16 @@ namespace mvlView
             if (File.Exists(file.FileName))
             {
                 data.Clear();
+                mvljson.Clear();
                 listBox1.Items.Clear();
                 //sourcepath = Path.GetDirectoryName(file.FileName) + "\\";
                 Mvl thisMvl = new Mvl(file.FileName);
                 sourcepath = thisMvl.targetTempPath;
+                targetpath = Path.GetDirectoryName(file.FileName) + "\\";
                 //OpenJSON(file.FileName);
                 temppath.Add(thisMvl.targetTempPath);
                 mvljson = thisMvl.listofmvl;
                 OpenMVL(mvljson);
-
             }
         }
 
@@ -418,6 +459,15 @@ namespace mvlView
         private void button2_Click(object sender, EventArgs e)
         {
             saveAll(true);
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(MessageBox.Show("Developed by Wetor@github, Manicsteiner@github\rThanks support of ningshanwutuobang@github\rClick OK to open the github page.",
+                "About", MessageBoxButtons.OKCancel) == DialogResult.OK)
+            {
+                System.Diagnostics.Process.Start("https://github.com/Manicsteiner/mvl_preview");
+            }
         }
 
         private void listView_mouth_DoubleClick(object sender, EventArgs e)
@@ -450,9 +500,18 @@ namespace mvlView
                 DrawMouth(body_index, listView_mouth.FocusedItem.Index);
                 tempFileName += "L" + mouth_index.ToString();
             }
-            if (!Directory.Exists(Directory.GetCurrentDirectory() + "\\chara"))
-                Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\chara");
-            pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + tempFileName + ".png", System.Drawing.Imaging.ImageFormat.Png);
+            if (checkBox1.Checked)
+            {
+                if (!Directory.Exists(targetpath + "\\chara"))
+                    Directory.CreateDirectory(targetpath + "\\chara");
+                pic.Save(targetpath + "\\chara\\" + tempFileName + ".png", System.Drawing.Imaging.ImageFormat.Png);
+            }
+            else
+            {
+                if (!Directory.Exists(Directory.GetCurrentDirectory() + "\\chara"))
+                    Directory.CreateDirectory(Directory.GetCurrentDirectory() + "\\chara");
+                pic.Save(Directory.GetCurrentDirectory() + "\\chara\\" + tempFileName + ".png", System.Drawing.Imaging.ImageFormat.Png);
+            }
             MessageBox.Show("Save success!");
         }              
     }

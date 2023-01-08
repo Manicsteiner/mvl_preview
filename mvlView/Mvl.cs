@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using Imazen.WebP;
 
 namespace mvlView
 {
@@ -32,7 +34,7 @@ namespace mvlView
     }
     public class Mvl
     {
-        string picname;
+        Image pic;
         string mvlname;
         uint num;
         public string targetTempPath;
@@ -40,7 +42,7 @@ namespace mvlView
         public Mvl(string filename)
         {
             mvlname = filename;
-            picname = FindFileName(filename);
+            pic = GetPicture(filename);
             /*if (picname.Equals("File not found!")){
                 return "Failed";
             }*/
@@ -54,7 +56,7 @@ namespace mvlView
             //End
             //return targetTempPath + "\\index.json";
         }
-        public void MvlProcess()
+        protected void MvlProcess()
         {
             Stream mvldata = new FileStream(mvlname, FileMode.Open, FileAccess.Read);
             byte[] mvlread = new byte[(int)mvldata.Length];
@@ -147,7 +149,7 @@ namespace mvlView
             }
             //MVLCombine
             //open the pic first!
-            Image pic = Bitmap.FromFile(picname);
+            //Image pic = Bitmap.FromFile(picname);
             int w = pic.Width;
             int h = pic.Height;
             List<MvlBlock> mainblock = pics[0].blocks;
@@ -172,10 +174,7 @@ namespace mvlView
                 int j = 0;
                 foreach(MvlBlock tpoint in pics[i].blocks)
                 {
-                    if(j++ % 6 != 0)
-                    {
-                        continue;
-                    }
+                    if(j++ % 6 != 0) continue;
                     x = (int)Math.Round(tpoint.x / rx) + 2000;
                     y = (int)Math.Round(tpoint.y / ry) + 1000;
                     Rectangle crop = new Rectangle((int)Math.Round(tpoint.u*w), (int)Math.Round(tpoint.v * h),dw, dh);
@@ -214,22 +213,56 @@ namespace mvlView
             //MessageBox.Show(listofmvl[1].min_x.ToString());
             //return the json here
         }
+        public void Close()
+        {
+            pic.Dispose();
+            listofmvl.Clear();
+            GC.SuppressFinalize(this);
+        }
 
         //static methods
-        public static string FindFileName(string filename) {
+        protected static Image GetPicture(string filename) {
             string m_FileName = filename.Substring(0, filename.LastIndexOf('.') - 1);
             string namewe = m_FileName + ".webp";
             string namepn = m_FileName + ".png";
             if (File.Exists(namepn)){
-                 return namepn;
+                Image pic = Bitmap.FromFile(namepn);
+                return pic;
             }
             else {
-                if (File.Exists(namewe)){
-                        return namewe;
+                if (File.Exists(namewe))
+                {
+                    //Image pic = Bitmap.FromFile(namewe);//It doesn't work
+
+                    /*WebPFormat.WebP pic = new WebPFormat.WebP();
+                    Bitmap picdec = pic.Load(namewe);
+                    return picdec;*/ //method from webpformat, returns sh!t quality
+
+                    Stream inpic = new FileStream(namewe, FileMode.Open, FileAccess.Read);
+                    byte[] picdata = new byte[(int)inpic.Length];
+                    inpic.Read(picdata, 0, (int)inpic.Length);
+                    SimpleDecoder dec = new SimpleDecoder();
+                    Bitmap picdec = dec.DecodeFromBytes(picdata, inpic.Length);
+                    inpic.Close();
+                    return picdec;
                 }
                 else
                 {
-                    throw new CustMessage("Picture file not found!");
+                    if (File.Exists(m_FileName+".wav"))
+                    {
+                        Stream inpic = new FileStream(namewe, FileMode.Open, FileAccess.Read);
+                        byte[] picdata = new byte[(int)inpic.Length];
+                        inpic.Read(picdata, 0, (int)inpic.Length);
+                        byte[] header = new byte[4];
+                        Array.Copy(picdata, 8, header, 0, 4);
+                        byte[] defaultheader = { 0x57, 0x45, 0x42, 0x50 };//"WEBP"
+                        if (!header.SequenceEqual(defaultheader)) throw new CustMessage("Picture file not found!");
+                        SimpleDecoder dec = new SimpleDecoder();
+                        Bitmap picdec = dec.DecodeFromBytes(picdata, inpic.Length);
+                        inpic.Close();
+                        return picdec;
+                    }
+                    else throw new CustMessage("Picture file not found!");
                 }
             }
         }
