@@ -32,6 +32,21 @@ namespace mvlView
         public string name;
         public int max_x, max_y, min_x, min_y;
     }
+
+    /* Methods from mvl.py, https://github.com/ningshanwutuobang/ChaosChildPCTools
+    """
+    mvl format :
+    ------------
+    head
+    ------------0x60
+    pictures
+    ------------
+    blocks
+    x, y, z, u, v
+    ------------
+    block_indexs of picturess
+    
+    """*/
     public class Mvl
     {
         Image pic;
@@ -46,9 +61,9 @@ namespace mvlView
             /*if (picname.Equals("File not found!")){
                 return "Failed";
             }*/
-            if (!Directory.Exists(Path.GetTempPath() + "\\mvl_" + GetFileNameOnly(filename)))
-                Directory.CreateDirectory(Path.GetTempPath() + "\\mvl_" + GetFileNameOnly(filename));
-            targetTempPath = Path.GetTempPath() + "\\mvl_" + GetFileNameOnly(filename) + "\\";
+            if (!Directory.Exists(Path.GetTempPath() + "\\mvl_" + Mvl.GetFileNameOnly(filename)))
+                Directory.CreateDirectory(Path.GetTempPath() + "\\mvl_" + Mvl.GetFileNameOnly(filename));
+            targetTempPath = Path.GetTempPath() + "\\mvl_" + Mvl.GetFileNameOnly(filename) + "\\";
 
             //process the mvl and png
             MvlProcess();
@@ -73,23 +88,25 @@ namespace mvlView
                 }
                 catch { }
             }
-            byte[] header = new byte[4];
+            if (!Format.IsMvl(mvlread)) throw new CustMessage("Not a MVL file");
+
+            /*byte[] header = new byte[4];
             Array.Copy(mvlread, 0, header, 0, 4);
             byte[] defaultheader = { 0x4d, 0x56, 0x4c, 0x31 };//"MVL1"
             if (!header.SequenceEqual(defaultheader)){
-                /*debug*/
+                debug
                 //MessageBox.Show(header.Length.ToString());
                 throw new CustMessage("Not a MVL file with MVL1 header, it is "+ Encoding.ASCII.GetString(header));
             }
             byte[] signofmvl = new byte[10];
             Array.Copy(mvlread, 0x20, signofmvl, 0, 10);
-            byte[] defaultsign = System.Text.Encoding.ASCII.GetBytes("XFYF0FUFVF");
+            byte[] defaultsign = Encoding.ASCII.GetBytes("XFYF0FUFVF");
             //byte[] defaultsign = "XFYF0FUFVF".ToCharArray();
             if (!signofmvl.SequenceEqual(defaultsign))
             {
                 //MessageBox.Show(Encoding.ASCII.GetString(signofmvl));
                 throw new CustMessage("Not a MVL file with sign of XFYF0FUFVF, it is "+ Encoding.ASCII.GetString(signofmvl));
-            }
+            }*/
 
             //process
             num = BitConverter.ToUInt32(mvlread, 4);
@@ -222,7 +239,9 @@ namespace mvlView
 
         //static methods
         protected static Image GetPicture(string filename) {
-            string m_FileName = filename.Substring(0, filename.LastIndexOf('.') - 1);
+            string m_FileName;
+            if (Format.HasExtensionName(filename)) m_FileName = filename.Substring(0, filename.LastIndexOf('.') - 1);
+            else m_FileName = filename;
             string namewe = m_FileName + ".webp";
             string namepn = m_FileName + ".png";
             if (File.Exists(namepn)){
@@ -241,6 +260,7 @@ namespace mvlView
                     Stream inpic = new FileStream(namewe, FileMode.Open, FileAccess.Read);
                     byte[] picdata = new byte[(int)inpic.Length];
                     inpic.Read(picdata, 0, (int)inpic.Length);
+                    if (!Format.IsWebp(picdata)) throw new CustMessage("Picture file Error!");
                     SimpleDecoder dec = new SimpleDecoder();
                     Bitmap picdec = dec.DecodeFromBytes(picdata, inpic.Length);
                     inpic.Close();
@@ -248,15 +268,35 @@ namespace mvlView
                 }
                 else
                 {
-                    if (File.Exists(m_FileName+".wav"))
+                    if (Format.IsMvl(filename) & !Format.HasExtensionName(filename))
                     {
-                        Stream inpic = new FileStream(namewe, FileMode.Open, FileAccess.Read);
+                        m_FileName = filename.Substring(0, filename.LastIndexOf('\\')) + "\\" + Format.Pure_GetOtherOne(filename);
+                    }
+                    else
+                    {
+                        throw new CustMessage("Not a MVL file!");
+                    }
+                    //MessageBox.Show(m_FileName + ".wav");
+                    if (File.Exists(m_FileName + ".wav") | File.Exists(m_FileName + ".webp"))
+                    {
+                        Stream inpic;
+                        if (File.Exists(m_FileName + ".webp"))
+                        {
+                            if(!Format.IsWebp(m_FileName + ".webp")) throw new CustMessage("Picture file Error!");
+                            inpic = new FileStream(m_FileName + ".webp", FileMode.Open, FileAccess.Read);
+                        }
+                        else
+                        {
+                            if (!Format.IsWebp(m_FileName + ".wav")) throw new CustMessage("Picture file Error!");
+                            inpic = new FileStream(m_FileName + ".wav", FileMode.Open, FileAccess.Read);
+                        }
+                        //inpic = new FileStream(m_FileName + ".wav", FileMode.Open, FileAccess.Read);
                         byte[] picdata = new byte[(int)inpic.Length];
                         inpic.Read(picdata, 0, (int)inpic.Length);
-                        byte[] header = new byte[4];
+                        /*byte[] header = new byte[4];
                         Array.Copy(picdata, 8, header, 0, 4);
-                        byte[] defaultheader = { 0x57, 0x45, 0x42, 0x50 };//"WEBP"
-                        if (!header.SequenceEqual(defaultheader)) throw new CustMessage("Picture file not found!");
+                        byte[] defaultheader = { 0x57, 0x45, 0x42, 0x50 };*///"WEBP"
+                        //if (!Format.IsWebp(picdata)) throw new CustMessage("Picture file Error!");
                         SimpleDecoder dec = new SimpleDecoder();
                         Bitmap picdec = dec.DecodeFromBytes(picdata, inpic.Length);
                         inpic.Close();
@@ -266,8 +306,11 @@ namespace mvlView
                 }
             }
         }
-        public static string GetFileNameOnly(string filename)
+        static string GetFileNameOnly(string filename)
         {
+            if (!Format.HasExtensionName(filename)) {
+                return Format.GetFileNameOnly(filename);
+            }
             string m_FileName = filename.Substring(filename.LastIndexOf('\\') + 1, filename.LastIndexOf('.') - filename.LastIndexOf('\\') - 2);
             return m_FileName;
         }
@@ -298,7 +341,7 @@ namespace mvlView
 
             }
         }
-        public static Bitmap PureBackground()
+        /*public static Bitmap PureBackground()
         {
             Bitmap img = new Bitmap(6000, 10000);
             Color color = Color.FromArgb(0x00000000);
@@ -323,7 +366,7 @@ namespace mvlView
                 }
             }
             return img;
-        }
+        }*/
     }
     public class CustMessage : Exception
     {

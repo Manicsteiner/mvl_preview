@@ -59,7 +59,7 @@ namespace mvlView
                         OpenJSON(inargs[i]);
                         saveAll(false);
                     }
-                    if (Path.GetExtension(inargs[i]).Equals(".mvl"))
+                    if (Path.GetExtension(inargs[i]).Equals(".mvl") | Format.IsMvl(inargs[i]))
                     {
                         Mvl thisMvl = new Mvl(inargs[i]);
                         sourcepath = thisMvl.targetTempPath;
@@ -99,7 +99,7 @@ namespace mvlView
         //从这里开始处理JSON文件
         public void OpenJSON(string filename)
         {
-            StreamReader sr = new StreamReader(filename);
+            /*StreamReader sr = new StreamReader(filename);
             JObject json = (JObject)JsonConvert.DeserializeObject(sr.ReadToEnd());
             sr.Close();
 
@@ -119,7 +119,8 @@ namespace mvlView
                 temp.max_y = (int)json[names[i]]["max_y"];
                 temp.min_y = (int)json[names[i]]["min_y"];
                 mvljson.Add(temp);
-            }
+            }*/
+            mvljson = Format.JsonToMvl(filename);
             OpenMVL(mvljson);
 
 
