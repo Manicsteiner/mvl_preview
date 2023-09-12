@@ -60,7 +60,7 @@ namespace mvlView
             return IsMvl(mvlread);
         }
 
-        //json
+        //json for mvl
         public static List<MvlSpirit> JsonToMvl(string filename)
         {
             StreamReader sr = new StreamReader(filename);
@@ -87,6 +87,18 @@ namespace mvlView
                 mvljson.Add(temp);
             }
             return mvljson;
+        }
+
+        /*--Json handeler for Kaleido ADV Workshop
+         * */
+        public static int JsonKaleido(string filename)
+        {
+            StreamReader sr = new StreamReader(filename);
+            JObject json = (JObject)JsonConvert.DeserializeObject(sr.ReadToEnd());
+            sr.Close();
+
+
+            return 0;
         }
 
         //pure number filename handler

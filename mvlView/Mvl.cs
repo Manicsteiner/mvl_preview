@@ -82,11 +82,11 @@ namespace mvlView
             if (mvlread[0] == 0x78 && mvlread[1] == 0x9c)
             {
                 throw new CustMessage("This mvl file seems to have been compressed. Please handle it with python script.");
-                try
+                /*try
                 {
                     mvlread = Decompress(mvlread);
                 }
-                catch { }
+                catch { }*/
             }
             if (!Format.IsMvl(mvlread)) throw new CustMessage("Not a MVL file");
 

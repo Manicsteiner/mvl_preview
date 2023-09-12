@@ -82,7 +82,7 @@ namespace mvlView
         private void openJsonToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();
-            file.Filter = "Json File|*.json|All File|*.*";
+            file.Filter = "Original Json File|index.json|Json File|*.json|All File|*.*";
             file.ShowDialog();
             if (File.Exists(file.FileName))
             {
@@ -402,7 +402,7 @@ namespace mvlView
             if (CompletAnnouce) MessageBox.Show("Saved all!");
         }
 
-        //Exit
+        //程序菜单：Exit
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //listView_eye.LargeImageList.Images.Clear();
@@ -434,7 +434,7 @@ namespace mvlView
             this.Close();
         }
 
-        //Open mvl file Enter
+        //程序菜单：Open mvl file Enter
         private void openMvlToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();
@@ -469,6 +469,19 @@ namespace mvlView
             {
                 System.Diagnostics.Process.Start("https://github.com/Manicsteiner/mvl_preview");
             }
+        }
+
+        private void openJsonForKaleidoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog file = new OpenFileDialog();
+            file.Filter = "Original Json File|*.psb.m.json|Json File|*.json|All File|*.*";
+            file.ShowDialog();
+            if (File.Exists(file.FileName))
+            {
+
+            }
+            //?//listView_eye.Items.Add(" ");
+            /////NOT COMPLETE
         }
 
         private void listView_mouth_DoubleClick(object sender, EventArgs e)
