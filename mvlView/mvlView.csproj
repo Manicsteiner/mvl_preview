@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Format.cs" />
+    <Compile Include="Kaleido.cs" />
     <Compile Include="Mvl.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

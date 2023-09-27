@@ -34,6 +34,7 @@ namespace mvlView
         int body_index,eye_index,mouth_index;
         int body_x0, body_y0;
         string[] inargs;
+        string workstatus = "mvl";
 
         //默认启动
         public Form1()
@@ -220,7 +221,59 @@ namespace mvlView
             {
                 listBox1.Items.Add(data[i].body);
             }
+            workstatus = "mvl";
+        }
 
+
+        public void OpenMVL_Kaleido(List<MvlSpirit> mvllist)
+        {
+            //新增两个变量，用于定义body.png名称长度
+            bool lengthdef = false;
+            int baselength = 0;
+            foreach (var item in mvllist)
+            {
+                if (!lengthdef)
+                {
+                    baselength = item.name.Length;
+                    lengthdef = true;
+                }
+                if (item.name.Length == baselength)
+                {
+                    Chara temp;
+                    temp.body = item.name;
+                    temp.eyes = new List<string>();
+                    temp.mouths = new List<string>();
+                    //初始化，假定立绘没有子分支
+                    temp.haseyes = false;
+                    temp.hasmouths = false;
+                    foreach (var block in mvllist)
+                    {
+                        //此处需要修改eyediff判定
+                        if (block.name.Length > baselength)
+                        {
+                            if (block.name.Substring(baselength + 1, 1) == "目")
+                            {
+                                temp.eyes.Add(block.name);
+                                temp.haseyes = true;
+                                //判定为有眼部子分支
+                            }
+                            if (block.name.Substring(baselength + 1, 1) == "口")
+                            {
+                                temp.mouths.Add(block.name);
+                                temp.hasmouths = true;
+                                //同上
+                            }
+
+                        }
+                    }
+                    data.Add(temp);
+                }
+            }
+            for (int i = 0; i < data.Count; i++)
+            {
+                listBox1.Items.Add(data[i].body);
+            }
+            workstatus = "kaleido";
         }
 
         //load spirit from list
@@ -365,7 +418,7 @@ namespace mvlView
                     {
                         for (int i_mouths = 0; i_mouths < data[i_body].mouths.Count; i_mouths++)
                         {
-                            for (int i_eyes = 0; i_eyes < data[i_body].mouths.Count; i_eyes++)
+                            for (int i_eyes = 0; i_eyes < data[i_body].eyes.Count; i_eyes++)
                             {
                                 DrawEye(i_body, i_eyes);
                                 DrawMouth(i_body, i_mouths);
@@ -375,7 +428,7 @@ namespace mvlView
                     }
                     else
                     {
-                        for (int i_eyes = 0; i_eyes < data[i_body].mouths.Count; i_eyes++)
+                        for (int i_eyes = 0; i_eyes < data[i_body].eyes.Count; i_eyes++)
                         {
                             DrawEye(i_body, i_eyes);
                             pic.Save(outputpath + data[i_body].body + "E" + i_eyes.ToString() + ".png", System.Drawing.Imaging.ImageFormat.Png);
@@ -471,6 +524,7 @@ namespace mvlView
             }
         }
 
+        //程序菜单：Kaleido
         private void openJsonForKaleidoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();
@@ -478,7 +532,15 @@ namespace mvlView
             file.ShowDialog();
             if (File.Exists(file.FileName))
             {
-
+                data.Clear();
+                mvljson.Clear();
+                listBox1.Items.Clear();
+                Kaleido thisKaleido = new Kaleido(file.FileName);
+                sourcepath = thisKaleido.targetTempPath;
+                targetpath = Path.GetDirectoryName(file.FileName) + "\\";
+                temppath.Add(thisKaleido.targetTempPath);
+                mvljson = thisKaleido.listofmvl;
+                OpenMVL_Kaleido(mvljson);
             }
             //?//listView_eye.Items.Add(" ");
             /////NOT COMPLETE
