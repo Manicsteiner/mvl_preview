@@ -55,7 +55,16 @@ namespace mvlView
                     data.Clear();
                     mvljson.Clear();
                     listBox1.Items.Clear();
-                    if (Path.GetExtension(inargs[i]).Equals(".json")) {
+                    if (Format.IsKaleidoJson(inargs[i]))
+                    {
+                        Kaleido thisKaleido = new Kaleido(inargs[i]);
+                        sourcepath = thisKaleido.targetTempPath;
+                        temppath.Add(thisKaleido.targetTempPath);
+                        mvljson = thisKaleido.listofmvl;
+                        OpenMVL_Kaleido(mvljson);
+                        saveAll(false);
+                    }
+                    if (Path.GetExtension(inargs[i]).Equals(".json") && !Format.IsKaleidoJson(inargs[i])) {
                         sourcepath = Path.GetDirectoryName(inargs[i]) + "\\";
                         OpenJSON(inargs[i]);
                         saveAll(false);
@@ -77,6 +86,36 @@ namespace mvlView
                 di.Delete(true);
             }
             this.Close();
+        }
+
+        //-o for open single file
+        public Form1(string arg)
+        {
+            InitializeComponent();
+            if(File.Exists(arg))
+            {
+                if (Format.IsKaleidoJson(arg))
+                {
+                    Kaleido thisKaleido = new Kaleido(arg);
+                    sourcepath = thisKaleido.targetTempPath;
+                    temppath.Add(thisKaleido.targetTempPath);
+                    mvljson = thisKaleido.listofmvl;
+                    OpenMVL_Kaleido(mvljson);
+                }
+                if (Path.GetExtension(arg).Equals(".json") && !Format.IsKaleidoJson(arg))
+                {
+                    sourcepath = Path.GetDirectoryName(arg) + "\\";
+                    OpenJSON(arg);
+                }
+                if (Path.GetExtension(arg).Equals(".mvl") | Format.IsMvl(arg))
+                {
+                    Mvl thisMvl = new Mvl(arg);
+                    sourcepath = thisMvl.targetTempPath;
+                    temppath.Add(thisMvl.targetTempPath);
+                    mvljson = thisMvl.listofmvl;
+                    OpenMVL(mvljson);
+                }
+            }
         }
 
         //程序菜单：打开JSON

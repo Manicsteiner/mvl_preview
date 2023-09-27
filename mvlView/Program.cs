@@ -22,10 +22,19 @@ namespace mvlView
             }
             else
             {
-                Application.EnableVisualStyles();//**
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Form1(args));
-                Application.Exit();
+                if (args.Length == 2 && args[0] == "-o")
+                {
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    Application.Run(new Form1(args[1]));
+                }
+                else
+                {
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    Application.Run(new Form1(args));
+                    Application.Exit();
+                }
             }            
         }
     }

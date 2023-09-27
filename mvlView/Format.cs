@@ -91,7 +91,7 @@ namespace mvlView
 
         /*--Json handeler for Kaleido ADV Workshop
          * */
-        public static int JsonKaleido(string filename)
+        /*public static int JsonKaleido(string filename)
         {
             StreamReader sr = new StreamReader(filename);
             JObject json = (JObject)JsonConvert.DeserializeObject(sr.ReadToEnd());
@@ -99,6 +99,13 @@ namespace mvlView
 
 
             return 0;
+        }*/
+
+        //identifying json
+        public static bool IsKaleidoJson(string jsonpath)
+        {
+            if (jsonpath.EndsWith(".psb.m.json")) return true;
+            else return false;
         }
 
         //pure number filename handler
