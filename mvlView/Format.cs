@@ -104,7 +104,14 @@ namespace mvlView
         //identifying json
         public static bool IsKaleidoJson(string jsonpath)
         {
-            if (jsonpath.EndsWith(".psb.m.json")) return true;
+            if (jsonpath.EndsWith(".psb.m.json"))
+            {
+                StreamReader sr = new StreamReader(jsonpath);
+                JObject json = (JObject)JsonConvert.DeserializeObject(sr.ReadToEnd());
+                sr.Close();
+                if (json["crop"].HasValues) return true;
+                else return false;
+            }
             else return false;
         }
 

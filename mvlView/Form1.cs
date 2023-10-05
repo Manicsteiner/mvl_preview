@@ -102,12 +102,12 @@ namespace mvlView
                     mvljson = thisKaleido.listofmvl;
                     OpenMVL_Kaleido(mvljson);
                 }
-                if (Path.GetExtension(arg).Equals(".json") && !Format.IsKaleidoJson(arg))
+                if (Path.GetExtension(arg).Equals(".json", StringComparison.OrdinalIgnoreCase) && !Format.IsKaleidoJson(arg))
                 {
                     sourcepath = Path.GetDirectoryName(arg) + "\\";
                     OpenJSON(arg);
                 }
-                if (Path.GetExtension(arg).Equals(".mvl") | Format.IsMvl(arg))
+                if (Path.GetExtension(arg).Equals(".mvl", StringComparison.OrdinalIgnoreCase) | Format.IsMvl(arg))
                 {
                     Mvl thisMvl = new Mvl(arg);
                     sourcepath = thisMvl.targetTempPath;
@@ -581,8 +581,71 @@ namespace mvlView
                 mvljson = thisKaleido.listofmvl;
                 OpenMVL_Kaleido(mvljson);
             }
-            //?//listView_eye.Items.Add(" ");
-            /////NOT COMPLETE
+        }
+
+        //Drag Enter 拖放文件时判断文件格式
+        private void Form1_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)){
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files.Length == 1)
+                {
+                    string extension = Path.GetExtension(files[0]);
+                    if (extension.Equals(".json", StringComparison.OrdinalIgnoreCase))
+                    {
+                        e.Effect = DragDropEffects.Copy;
+                    }
+                    else if (extension.Equals(".mvl", StringComparison.OrdinalIgnoreCase) | Format.IsMvl(files[0]))
+                    {
+                        e.Effect = DragDropEffects.Copy;
+                    }
+                    else
+                    {
+                        e.Effect = DragDropEffects.None;
+                    }
+                }
+                else
+                    e.Effect = DragDropEffects.None;
+            }
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        //Drag Drop 拖放文件的处理
+        private void Form1_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files.Length == 1)
+                {
+                    string extension = Path.GetExtension(files[0]);
+                    if (extension.Equals(".json", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (Format.IsKaleidoJson(files[0]))
+                        {
+                            Kaleido thisKaleido = new Kaleido(files[0]);
+                            sourcepath = thisKaleido.targetTempPath;
+                            temppath.Add(thisKaleido.targetTempPath);
+                            mvljson = thisKaleido.listofmvl;
+                            OpenMVL_Kaleido(mvljson);
+                        }
+                        else
+                        {
+                            sourcepath = Path.GetDirectoryName(files[0]) + "\\";
+                            OpenJSON(files[0]);
+                        }
+                    }
+                    else if (extension.Equals(".mvl", StringComparison.OrdinalIgnoreCase) | Format.IsMvl(files[0]))
+                    {
+                        Mvl thisMvl = new Mvl(files[0]);
+                        sourcepath = thisMvl.targetTempPath;
+                        temppath.Add(thisMvl.targetTempPath);
+                        mvljson = thisMvl.listofmvl;
+                        OpenMVL(mvljson);
+                    }
+                }
+            }
         }
 
         private void listView_mouth_DoubleClick(object sender, EventArgs e)

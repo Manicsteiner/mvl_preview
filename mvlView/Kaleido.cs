@@ -76,7 +76,7 @@ namespace mvlView
     {
         Image pic;
         string basename;
-        uint num;
+        //uint num;
         public string targetTempPath;
         public List<MvlSpirit> listofmvl = new List<MvlSpirit>();
         public Kaleido(string jsonpath)
