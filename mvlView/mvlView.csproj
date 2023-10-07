@@ -145,6 +145,9 @@
     <Error Condition="!Exists('..\packages\Microsoft.UI.Xaml.2.5.0\build\Microsoft.UI.Xaml.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.UI.Xaml.2.5.0\build\Microsoft.UI.Xaml.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>copy "$(SolutionDir)libwebp\$(PlatformName)build\libwebp.dll" "$(TargetDir)libwebp.dll"</PostBuildEvent>
+    <PostBuildEvent>copy "$(SolutionDir)libwebp\$(PlatformName)build\libwebp.dll" "$(TargetDir)libwebp.dll"
+copy "$(SolutionDir)libwebp\$(PlatformName)build\libsharpyuv.dll" "$(TargetDir)libsharpyuv.dll"
+copy "$(SolutionDir)libwebp\$(PlatformName)build\libwebpdecoder.dll" "$(TargetDir)libwebpdecoder.dll"
+copy "$(SolutionDir)libwebp\$(PlatformName)build\libwebpdemux.dll" "$(TargetDir)libwebpdemux.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>
