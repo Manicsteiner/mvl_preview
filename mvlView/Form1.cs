@@ -559,7 +559,7 @@ namespace mvlView
             if(MessageBox.Show("Developed by Wetor@github, Manicsteiner@github\rThanks support of ningshanwutuobang@github\rClick OK to open the github page.",
                 "About", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                System.Diagnostics.Process.Start("https://github.com/Manicsteiner/mvl_preview");
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/Manicsteiner/mvl_preview") { UseShellExecute = true});
             }
         }
 
