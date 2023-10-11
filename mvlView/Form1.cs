@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 
 namespace mvlView
 {
+    /// <summary>窗口左上框中的一个Chara</summary>
     struct Chara
     {
         public string body;
@@ -36,13 +37,14 @@ namespace mvlView
         string[] inargs;
         string workstatus = "mvl";
 
-        //默认启动
+        /// <summary>默认启动 default boot</summary>
         public Form1()
         {
             InitializeComponent();
         }
 
-        //命令行启动
+        /// <summary>命令行启动 boot from command line</summary>
+        /// <param name="args">mvl/json filepath</param>
         public Form1(string[] args)
         {
             this.inargs = args;
@@ -88,7 +90,8 @@ namespace mvlView
             this.Close();
         }
 
-        //-o for open single file
+        /// <summary>-o for open single file</summary>
+        /// <param name="arg">mvl/json filepath</param>
         public Form1(string arg)
         {
             InitializeComponent();
@@ -118,7 +121,9 @@ namespace mvlView
             }
         }
 
-        //程序菜单：打开JSON
+        /// <summary>程序菜单：打开JSON</summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void openJsonToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog file = new OpenFileDialog();
@@ -136,7 +141,8 @@ namespace mvlView
             }
         }
 
-        //从这里开始处理JSON文件
+        /// <summary>处理来自mvl的index.json文件</summary>
+        /// <param name="filename">index.json filepath</param>
         public void OpenJSON(string filename)
         {
             /*StreamReader sr = new StreamReader(filename);
@@ -212,19 +218,23 @@ namespace mvlView
 
         }
 
-        //open from mvl
+        /// <summary>load pictures to listbox, workstatus as mvl</summary>
+        /// <param name="mvllist">list of spirits, as index.json</param>
         public void OpenMVL(List<MvlSpirit> mvllist)
         {
             //新增两个变量，用于定义body.png名称长度
-            bool lengthdef = false;
-            int baselength = 0;
+            int baselength = int.MaxValue;
+            foreach (var item in mvllist) {
+                baselength = baselength > item.name.Length ? item.name.Length : baselength;
+            }
+            
             foreach (var item in mvllist)
             {
-                if (!lengthdef)
+                /*if (!lengthdef)
                 {
                     baselength = item.name.Length;
                     lengthdef = true;
-                }
+                }*/
                 if (item.name.Length == baselength)
                 {
                     Chara temp;
@@ -263,7 +273,8 @@ namespace mvlView
             workstatus = "mvl";
         }
 
-
+        /// <summary>load pictures to listbox, workstatus as kaleido</summary>
+        /// <param name="mvllist">list of spirits, 已从psb.m.json提取</param>
         public void OpenMVL_Kaleido(List<MvlSpirit> mvllist)
         {
             //新增两个变量，用于定义body.png名称长度
@@ -315,7 +326,9 @@ namespace mvlView
             workstatus = "kaleido";
         }
 
-        //load spirit from list
+        /// <summary>load spirit to window from listbox</summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void listBox1_DoubleClick(object sender, EventArgs e)
         {
             if (listBox1.SelectedItems.Count <= 0)
@@ -624,22 +637,34 @@ namespace mvlView
                     {
                         if (Format.IsKaleidoJson(files[0]))
                         {
+                            data.Clear();
+                            mvljson.Clear();
+                            listBox1.Items.Clear();
                             Kaleido thisKaleido = new Kaleido(files[0]);
                             sourcepath = thisKaleido.targetTempPath;
+                            targetpath = Path.GetDirectoryName(files[0]) + "\\";
                             temppath.Add(thisKaleido.targetTempPath);
                             mvljson = thisKaleido.listofmvl;
                             OpenMVL_Kaleido(mvljson);
                         }
                         else
                         {
+                            data.Clear();
+                            mvljson.Clear();
+                            listBox1.Items.Clear();
                             sourcepath = Path.GetDirectoryName(files[0]) + "\\";
+                            targetpath = Path.GetDirectoryName(files[0]) + "\\";
                             OpenJSON(files[0]);
                         }
                     }
                     else if (extension.Equals(".mvl", StringComparison.OrdinalIgnoreCase) | Format.IsMvl(files[0]))
                     {
+                        data.Clear();
+                        mvljson.Clear();
+                        listBox1.Items.Clear();
                         Mvl thisMvl = new Mvl(files[0]);
                         sourcepath = thisMvl.targetTempPath;
+                        targetpath = Path.GetDirectoryName(files[0]) + "\\";
                         temppath.Add(thisMvl.targetTempPath);
                         mvljson = thisMvl.listofmvl;
                         OpenMVL(mvljson);
