@@ -10,9 +10,11 @@ using System.IO;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using Imazen.WebP;
+using System.Threading;
 
 namespace mvlView
 {
+    /// <summary>处理mvl过程中的原图上的小片图片</summary>
     struct MvlPiece
     {
         public string name;
@@ -27,14 +29,14 @@ namespace mvlView
         public int x, y, z;
         public float u, v;
     }
+    ///<summary>最终输出至临时目录的图片</summary>
     public struct MvlSpirit
     {
         public string name;
         public int max_x, max_y, min_x, min_y;
     }
-
-    /* Methods from mvl.py, https://github.com/ningshanwutuobang/ChaosChildPCTools
-    """
+    ///<summary>Methods from mvl.py, https://github.com/ningshanwutuobang/ChaosChildPCTools</summary>
+    /*"""
     mvl format :
     ------------
     head
@@ -74,7 +76,7 @@ namespace mvlView
         protected void MvlProcess()
         {
             Stream mvldata = new FileStream(mvlname, FileMode.Open, FileAccess.Read);
-            byte[] mvlread = new byte[(int)mvldata.Length];
+            byte[] mvlread = new byte[(int)mvldata.Length];//long Length to int, requires it no larger than about 2GB
             mvldata.Read(mvlread, 0, mvlread.Length);
             mvldata.Close();
 
@@ -111,9 +113,10 @@ namespace mvlView
             //process
             num = BitConverter.ToUInt32(mvlread, 4);
             //MVLGetPic();
-            List<MvlPiece> pics = new List<MvlPiece>();
+            List<MvlPiece> pics = new List<MvlPiece>((int)num);
             byte[] tempsigntrue = { 0x04, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 };
             for (int i = 0; i < num; i++)
+            //Parallel.For(0, num, i =>
             {
                 byte[] temp = new byte[0x40];
                 Array.Copy(mvlread, i * 0x40 + 0x60, temp, 0, 0x40);
@@ -132,19 +135,19 @@ namespace mvlView
                 Array.Copy(temp, 0x20, tempname, 0, 0x20);
                 temp_piece.name = CStr(tempname);
                 temp_piece.blocks = new List<MvlBlock>();
-                pics.Add(temp_piece);
+                /*pics.Add(temp_piece);
             }
             //MVLGetBlocks
             for (int i = 0; i < num; i++)
             {
-                MvlPiece temp = pics[i];
-                uint bi = temp.first_block;
-                uint bl = temp.block_len;
-                byte[] block_data = new byte[20*bl];
+                MvlPiece temp = pics[i];*/
+                uint bi = temp_piece.first_block;
+                uint bl = temp_piece.block_len;
+                byte[] block_data = new byte[20 * bl];
                 Array.Copy(mvlread, bi, block_data, 0, 20 * bl);
-                byte[] tempdata = new byte[2 * temp.length];
-                Array.Copy(mvlread, temp.index, tempdata, 0, 2 * temp.length);
-                for(int j = 0; j < (temp.length * 2); j += 2)
+                byte[] tempdata = new byte[2 * temp_piece.length];
+                Array.Copy(mvlread, temp_piece.index, tempdata, 0, 2 * temp_piece.length);
+                for (int j = 0; j < (temp_piece.length * 2); j += 2)
                 {
                     ushort k = BitConverter.ToUInt16(tempdata, j);
                     if (!(k <= bl))
@@ -157,12 +160,14 @@ namespace mvlView
                     tempblock.z = (int)Math.Round(BitConverter.ToSingle(block_data, k * 20 + 8));
                     tempblock.u = BitConverter.ToSingle(block_data, k * 20 + 12);
                     tempblock.v = BitConverter.ToSingle(block_data, k * 20 + 16);
-                    if(tempblock.z != 0)
+                    if (tempblock.z != 0)
                     {
                         throw new CustMessage("z!=0");
                     }
-                    pics[i].blocks.Add(tempblock);
+                    //pics[i].blocks.Add(tempblock);
+                    temp_piece.blocks.Add(tempblock);
                 }
+                /*lock(pics) */pics.Add(temp_piece);
             }
             //MVLCombine
             //open the pic first!
@@ -177,9 +182,13 @@ namespace mvlView
             double rx = dx / dw;
             double ry = dy / dh;
             //pic_i = 0
+
             for (int i = 0; i < num; i++)
+            //Parallel.For(0, num, index =>
             {
                 if (pics[i].length <= 0) continue;
+                //int i = (int)index;
+                //if (pics[i].length <= 0) return;
                 //Bitmap img = PureBackground();
                 Bitmap img = new Bitmap(4000, 6000);
                 Graphics img_g = Graphics.FromImage(img);
@@ -189,15 +198,15 @@ namespace mvlView
                 int minx = x, miny = y, maxx = x, maxy = y;
                 //for(int j = 0; j< )
                 int j = 0;
-                foreach(MvlBlock tpoint in pics[i].blocks)
+                foreach (MvlBlock tpoint in pics[i].blocks)
                 {
-                    if(j++ % 6 != 0) continue;
+                    if (j++ % 6 != 0) continue;
                     x = (int)Math.Round(tpoint.x / rx) + 2000;
                     y = (int)Math.Round(tpoint.y / ry) + 1000;
-                    Rectangle crop = new Rectangle((int)Math.Round(tpoint.u*w), (int)Math.Round(tpoint.v * h),dw, dh);
+                    Rectangle crop = new Rectangle((int)Math.Round(tpoint.u * w), (int)Math.Round(tpoint.v * h), dw, dh);
                     Bitmap target = new Bitmap(dw, dh);
                     Graphics gr = Graphics.FromImage(target);
-                    gr.DrawImage(pic, 0, 0, crop, GraphicsUnit.Pixel);
+                    /*lock (pic) */gr.DrawImage(pic, 0, 0, crop, GraphicsUnit.Pixel);
                     img_g.DrawImage(target, x, y);//mask?
                     minx = Math.Min(x, minx);
                     maxx = Math.Max(x, maxx);
@@ -210,7 +219,7 @@ namespace mvlView
                 maxy += dh;
                 //MessageBox.Show("CanIDraw?");
                 Rectangle fincrop = new Rectangle(minx, miny, maxx - minx, maxy - miny);
-                Bitmap imgf = new Bitmap(fincrop.Width,fincrop.Height);
+                Bitmap imgf = new Bitmap(fincrop.Width, fincrop.Height);
                 Graphics imgf_g = Graphics.FromImage(imgf);
                 imgf_g.DrawImage(img, 0, 0, fincrop, GraphicsUnit.Pixel);
                 imgf.Save(targetTempPath + pics[i].name + ".png", System.Drawing.Imaging.ImageFormat.Png);
