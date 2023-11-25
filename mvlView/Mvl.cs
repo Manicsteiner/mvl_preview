@@ -113,7 +113,7 @@ namespace mvlView
             //process
             num = BitConverter.ToUInt32(mvlread, 4);
             //MVLGetPic();
-            List<MvlPiece> pics = new List<MvlPiece>((int)num);
+            List<MvlPiece> pics = new List<MvlPiece>();
             byte[] tempsigntrue = { 0x04, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 };
             for (int i = 0; i < num; i++)
             //Parallel.For(0, num, i =>
