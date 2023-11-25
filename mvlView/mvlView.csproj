@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
     <OutputType>WinExe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
@@ -31,7 +31,6 @@
   <ItemGroup>
     <PackageReference Include="Imazen.WebP" Version="10.0.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.UI.Xaml" Version="2.7.3" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
@@ -53,6 +52,6 @@
 copy "$(SolutionDir)libwebp\$(Platform)build\libsharpyuv.dll" "$(TargetDir)libsharpyuv.dll"
 copy "$(SolutionDir)libwebp\$(Platform)build\libwebpdecoder.dll" "$(TargetDir)libwebpdecoder.dll"
 copy "$(SolutionDir)libwebp\$(Platform)build\libwebpdemux.dll" "$(TargetDir)libwebpdemux.dll"</PostBuildEvent>
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 </Project>
