@@ -1,0 +1,34 @@
+name: .NET Framework Build
+on: [push, pull_request]
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - msbuild_target: x64
+            lowercase_target: x64
+          - msbuild_target: x86
+            lowercase_target: x86
+    env:
+      TARGET_PLATFORM: ${{ matrix.msbuild_target }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+      # Restore NuGet packages
+      - name: Restore
+        run: nuget restore
+      # Build the solution
+      - name: Build
+        run: msbuild /p:Configuration=Release /p:Platform="${{ matrix.lowercase_target }}" /p:TargetFrameworkVersion=v4.6.2 mvlView.sln
+      # Publish the artifacts
+      - name: Publish Artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MvlView_${{ matrix.lowercase_target }}_net462
+          path: mvlView/bin/${{ matrix.lowercase_target }}/Release
