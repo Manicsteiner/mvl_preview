@@ -9,6 +9,8 @@ jobs:
             lowercase_target: x64
           - msbuild_target: x86
             lowercase_target: x86
+          - msbuild_target: ARM64
+            lowercase_target: arm64
     env:
       TARGET_PLATFORM: ${{ matrix.msbuild_target }}
     runs-on: windows-latest
