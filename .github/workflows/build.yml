@@ -67,12 +67,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download from Github
-        uses: actions/cache@v4
+        uses: actions/download-artifact@v4
         with:
           path: assets
         
+      - name: Re-zip artifacts
+        run: |
+          cd assets
+          for dir in */ ; do
+            zip -r "${dir%/}.zip" "$dir"
+          done
+        shell: bash
+
       - name: Release to Github
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            assets/*
+            assets/*.zip
