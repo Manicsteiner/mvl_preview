@@ -34,10 +34,11 @@ jobs:
       
       # Build libwebp
       - name: Checkout libwebp
+        shell: cmd
         run: |
           git clone -b 1.4.0 https://github.com/webmproject/libwebp.git libwebp-140
           cd libwebp-140
-          cmd.exe /C "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" "${{ matrix.lowercase_target }}"
+          "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" "${{ matrix.lowercase_target }}"
           nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic ARCH="${{ matrix.lowercase_target }}" OBJDIR=output
           cp output/release-dynamic/"${{ matrix.lowercase_target }}"/bin/*.dll ../libwebp/${{ matrix.lowercase_target }}build/
         
