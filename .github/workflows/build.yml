@@ -39,7 +39,7 @@ jobs:
       - name: Checkout libwebp
         shell: cmd
         run: |
-          mkdir -p libwebp/${{ matrix.msbuild_target }}build
+          mkdir libwebp\\${{ matrix.msbuild_target }}build
           git clone -b 1.4.0 https://github.com/webmproject/libwebp.git libwebp-140
           ls
           cd libwebp-140
