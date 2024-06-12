@@ -38,9 +38,9 @@ jobs:
         run: |
           git clone -b 1.4.0 https://github.com/webmproject/libwebp.git libwebp-140
           cd libwebp-140
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" "${{ matrix.lowercase_target }}"
-          nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic ARCH="${{ matrix.lowercase_target }}" OBJDIR=output
-          cp output/release-dynamic/"${{ matrix.lowercase_target }}"/bin/*.dll ../libwebp/${{ matrix.lowercase_target }}build/
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.lowercase_target }}
+          nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic ARCH=${{ matrix.lowercase_target }} OBJDIR=output
+          cp output/release-dynamic/${{ matrix.lowercase_target }}/bin/*.dll ../libwebp/${{ matrix.lowercase_target }}build/
         
       # Restore NuGet packages
       - name: Restore NuGet packages
