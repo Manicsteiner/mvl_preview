@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - '*'
+    branches-ignore:
+      - "dotnet6"
   pull_request:
     branches:
       - '*'
