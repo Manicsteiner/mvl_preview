@@ -14,6 +14,8 @@ jobs:
   build:
     strategy:
       matrix:
+        dotnet_version: [ 6, 7, 8 ]
+        msbuild_target: [ x64, x86, ARM64 ]
         include:
           - msbuild_target: x64
             lowercase_target: x64
@@ -24,9 +26,11 @@ jobs:
           - msbuild_target: ARM64
             lowercase_target: arm64
             crossbuild_target: x86_arm64
+
     env:
       TARGET_PLATFORM: ${{ matrix.msbuild_target }}
     runs-on: windows-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,6 +38,10 @@ jobs:
           show-progress: false
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
+      - name: Setup dotnet SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet_version }}.0.x
 
       # Build libwebp
       # mkdir libwebp\\${{ matrix.msbuild_target }}build
@@ -48,17 +56,18 @@ jobs:
 
       # Restore NuGet packages
       - name: Restore NuGet packages
-        run: nuget restore
+        run: dotnet restore
       # Build the solution
       - name: Build
-        run: msbuild /p:Configuration=Release /p:Platform="${{ matrix.lowercase_target }}" /p:TargetFrameworkVersion=v4.6.2 mvlView.sln
+        run: dotnet build mvlView.sln -c Release -f net${{ matrix.dotnet_version }}.0-windows7.0 /p:Platform="${{ matrix.lowercase_target }}"
+
       # Publish the artifacts
       - name: Publish Artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: MvlView_${{ matrix.lowercase_target }}_net462
-          path: mvlView/bin/${{ matrix.lowercase_target }}/Release
+          name: MvlView_${{ matrix.lowercase_target }}_net${{ matrix.dotnet_version }}
+          path: mvlView/bin/${{ matrix.lowercase_target }}/Release/net${{ matrix.dotnet_version }}.0-windows7.0
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
