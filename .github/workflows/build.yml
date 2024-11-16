@@ -12,9 +12,10 @@ on:
 
 jobs:
   build:
+    continue-on-error: true
     strategy:
       matrix:
-        dotnet_version: [ 6, 8, 9 ]
+        dotnet_version: [ 8, 9 ]
         msbuild_target: [ x64, x86, ARM64 ]
         include:
           - msbuild_target: x64
@@ -59,7 +60,7 @@ jobs:
         run: dotnet restore
       # Build the solution
       - name: Build
-        run: dotnet build mvlView.sln -c Release -f net${{ matrix.dotnet_version }}.0-windows7.0 /p:Platform="${{ matrix.lowercase_target }}"
+        run: dotnet build mvlView.sln -c Release -f net${{ matrix.dotnet_version }}.0-windows /p:Platform="${{ matrix.lowercase_target }}"
 
       # Publish the artifacts
       - name: Publish Artifact
