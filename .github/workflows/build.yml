@@ -1,21 +1,21 @@
-name: .NET Framework Build
+name: .NET Desktop Build
 
 on:
   push:
     tags:
       - '*'
-    branches-ignore:
-      - "dotnet6"
+    branches:
+      - "dotnet10"
   pull_request:
     branches:
-      - '*'
+      - 'dotnet10'
 
 jobs:
   build:
     continue-on-error: true
     strategy:
       matrix:
-        dotnet_version: [ 8, 9 ]
+        dotnet_version: [ 8, 9, 10 ]
         msbuild_target: [ x64, x86, ARM64 ]
         include:
           - msbuild_target: x64
@@ -31,29 +31,31 @@ jobs:
     env:
       TARGET_PLATFORM: ${{ matrix.msbuild_target }}
     runs-on: windows-latest
+    # Expected works on Windows-2025
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           show-progress: false
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
+      # - name: Add msbuild to PATH
+      #   uses: microsoft/setup-msbuild@v2
       - name: Setup dotnet SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.dotnet_version }}.0.x
 
       # Build libwebp
       # mkdir libwebp\\${{ matrix.msbuild_target }}build
-      - name: Checkout libwebp
-        shell: cmd
-        run: |
-          git clone -b 1.4.0 https://github.com/webmproject/libwebp.git libwebp-140
-          cd libwebp-140
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.crossbuild_target }}
-          nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic ARCH=${{ matrix.lowercase_target }} OBJDIR=output
-          cp output/release-dynamic/${{ matrix.lowercase_target }}/bin/*.dll ../libwebp/${{ matrix.msbuild_target }}build/
+      # Enable build when VS2026 is ready
+#      - name: Checkout libwebp
+#        shell: cmd
+#        run: |
+#          git clone -b 1.6.0 https://github.com/webmproject/libwebp.git libwebp-160
+#          cd libwebp-160
+#          call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.crossbuild_target }}
+#          nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic ARCH=${{ matrix.lowercase_target }} OBJDIR=output
+#          cp output/release-dynamic/${{ matrix.lowercase_target }}/bin/*.dll ../libwebp/${{ matrix.msbuild_target }}build/
 
       # Restore NuGet packages
       - name: Restore NuGet packages
@@ -65,10 +67,10 @@ jobs:
       # Publish the artifacts
       - name: Publish Artifact
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: MvlView_${{ matrix.lowercase_target }}_net${{ matrix.dotnet_version }}
-          path: mvlView/bin/${{ matrix.lowercase_target }}/Release/net${{ matrix.dotnet_version }}.0-windows7.0
+          path: mvlView/bin/${{ matrix.msbuild_target }}/Release/net${{ matrix.dotnet_version }}.0-windows
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -76,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download from Github
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           path: assets
 
@@ -89,7 +91,7 @@ jobs:
         shell: bash
 
       - name: Release to Github
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             assets/*.zip
