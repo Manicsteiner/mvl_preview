@@ -5,7 +5,7 @@ on:
     tags:
       - '*'
     branches:
-      - "dotnet10"
+      - 'dotnet10'
   pull_request:
     branches:
       - 'dotnet10'
@@ -30,12 +30,12 @@ jobs:
 
     env:
       TARGET_PLATFORM: ${{ matrix.msbuild_target }}
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     # Expected works on Windows-2025
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           show-progress: false
       # - name: Add msbuild to PATH
@@ -43,19 +43,21 @@ jobs:
       - name: Setup dotnet SDK
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{ matrix.dotnet_version }}.0.x
+          dotnet-version: |
+            ${{ matrix.dotnet_version }}.0.x
+            10.0.x
 
       # Build libwebp
       # mkdir libwebp\\${{ matrix.msbuild_target }}build
       # Enable build when VS2026 is ready
-#      - name: Checkout libwebp
-#        shell: cmd
-#        run: |
-#          git clone -b 1.6.0 https://github.com/webmproject/libwebp.git libwebp-160
-#          cd libwebp-160
-#          call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.crossbuild_target }}
-#          nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic ARCH=${{ matrix.lowercase_target }} OBJDIR=output
-#          cp output/release-dynamic/${{ matrix.lowercase_target }}/bin/*.dll ../libwebp/${{ matrix.msbuild_target }}build/
+      - name: Checkout libwebp
+        shell: cmd
+        run: |
+          git clone -b 1.6.0 https://github.com/webmproject/libwebp.git libwebp-160
+          cd libwebp-160
+          call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.crossbuild_target }}
+          nmake /f Makefile.vc CFG=release-dynamic RTLIBCFG=dynamic ARCH=${{ matrix.lowercase_target }} OBJDIR=output
+          cp output/release-dynamic/${{ matrix.lowercase_target }}/bin/*.dll ../libwebp/${{ matrix.msbuild_target }}build/
 
       # Restore NuGet packages
       - name: Restore NuGet packages
@@ -67,7 +69,7 @@ jobs:
       # Publish the artifacts
       - name: Publish Artifact
         if: success()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: MvlView_${{ matrix.lowercase_target }}_net${{ matrix.dotnet_version }}
           path: mvlView/bin/${{ matrix.msbuild_target }}/Release/net${{ matrix.dotnet_version }}.0-windows
@@ -78,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download from Github
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: assets
 

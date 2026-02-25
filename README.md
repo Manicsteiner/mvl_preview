@@ -6,9 +6,9 @@ _Memories Off Innocent Fille Noelle Fullbloom_ (switch version)
 **Some characters do not have eye difference, it's normal as it is.**
 # How to use
 You need to install [.NET Framework Runtime](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net461) 4.6.1 or higher.  
-Alternatively, you can try .NET6 release with [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0), which may only works on Win10/Win11 and may have unknown issues.  
+Alternatively, you can try .NET6+ release with [.NET Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/), which only works on Win10/Win11.  
 ## users for MAGES Engine games
-1, Get the mvl files from game archives, usually in chara.cpk, chara.mpk, or chara folder. You can open cpk/mpk with [GARbro](https://github.com/morkt/GARbro).  
+1, Get the mvl files from game archives, usually in chara.cpk, chara.mpk, or chara folder. You can open cpk/mpk with [GARbro](https://github.com/morkt/GARbro) or [GARbro-Mod](https://github.com/crskycode/GARbro), [GARbro-Mod-mirror](https://github.com/Manicsteiner/GARbro).  
 2, Open the program, right-click the "bodys" listbox, select "Open mvl" to open the mvl file, or just drag and drop it onto the window.  
 3, Wait about 10 seconds for processing, it depends on your CPU, and then enjoy it.  
 4, Exit with the button in right-click menu to clear temp files in temp folder, usually C:\Windows\Temp or ％AppData％\Local\Temp.  
